@@ -1,0 +1,24 @@
+{
+  "name": "base_datos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --watch src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camiloconrado/base_datos.git"
+  },
+  "author": "Camilo Conrado",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/camiloconrado/base_datos/issues"
+  },
+  "homepage": "https://github.com/camiloconrado/base_datos#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
