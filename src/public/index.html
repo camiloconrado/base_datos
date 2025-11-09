@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestor de Usuarios y Tareas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #007bff;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      width: 400px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    input,
+    button {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 6px;
+      border-bottom: 1px solid #ddd;
+    }
+    .message {
+      text-align: center;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Gestor de Usuarios y Tareas</h1>
+
+  <div class="container">
+    <!-- Usuarios -->
+    <div class="card">
+      <h2>Usuarios</h2>
+      <form id="userForm">
+        <input type="text" id="userName" placeholder="Nombre" required />
+        <input type="email" id="userEmail" placeholder="Correo" required />
+        <input type="password" id="userPassword" placeholder="Contraseña" required />
+        <button type="submit">Crear Usuario</button>
+      </form>
+      <div id="userMsg" class="message"></div>
+      <ul id="userList"></ul>
+    </div>
+
+    <!-- Tareas -->
+    <div class="card">
+      <h2>Tareas</h2>
+      <form id="taskForm">
+        <input type="text" id="taskTitle" placeholder="Título" required />
+        <input type="text" id="taskDescription" placeholder="Descripción" />
+        <input type="number" id="taskUserId" placeholder="ID del Usuario" required />
+        <button type="submit">Crear Tarea</button>
+      </form>
+      <div id="taskMsg" class="message"></div>
+      <ul id="taskList"></ul>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000";
+
+    // Función para mostrar mensajes
+    function showMessage(id, text, type) {
+      const msg = document.getElementById(id);
+      msg.textContent = text;
+      msg.className = `message ${type}`;
+      setTimeout(() => (msg.textContent = ""), 3000);
+    }
+
+    // Cargar usuarios
+    async function loadUsers() {
+      const res = await fetch(`${API_URL}/users`);
+      const data = await res.json();
+      const list = document.getElementById("userList");
+      list.innerHTML = data
+        .map((u) => `<li><b>${u.name}</b> (${u.email})</li>`)
+        .join("");
+    }
+
+    // Crear usuario
+    document.getElementById("userForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = userName.value;
+      const email = userEmail.value;
+      const password = userPassword.value;
+
+      const res = await fetch(`${API_URL}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        showMessage("userMsg", "✅ Usuario creado correctamente", "success");
+        e.target.reset();
+        loadUsers();
+      } else {
+        showMessage("userMsg", `❌ Error: ${data.error || "No se pudo crear el usuario"}`, "error");
+      }
+    });
+
+    // Cargar tareas
+    async function loadTasks() {
+      const res = await fetch(`${API_URL}/tasks`);
+      const data = await res.json();
+      const list = document.getElementById("taskList");
+      list.innerHTML = data
+        .map((t) => `<li><b>${t.title}</b> (Usuario: ${t.user_id})</li>`)
+        .join("");
+    }
+
+    // Crear tarea
+    document.getElementById("taskForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = taskTitle.value;
+      const description = taskDescription.value;
+      const user_id = taskUserId.value;
+
+      const res = await fetch(`${API_URL}/tasks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description, user_id }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        showMessage("taskMsg", "✅ Tarea creada correctamente", "success");
+        e.target.reset();
+        loadTasks();
+      } else {
+        showMessage("taskMsg", `❌ Error: ${data.error || "No se pudo crear la tarea"}`, "error");
+      }
+    });
+
+    // Inicializar
+    loadUsers();
+    loadTasks();
+  </script>
+</body>
+</html>
